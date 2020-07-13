@@ -11,10 +11,10 @@
 using namespace kfr;
 
 
-univector<int> extract_epoch_indices(univector<f32> audio, double sample_frequency) {
+univector<int> extract_epoch_indices(std::shared_ptr<univector<f32>> audio, double sample_frequency) {
     const int window_length = int(0.005 * sample_frequency);
 
-    univector<double> x(audio.size(), 0);
+    univector<double> x(audio->size(), 0);
     univector<double> y1(x.size(), 0);
     univector<double> y2(y1.size(), 0);
     univector<double> y3(y2.size(), 0);
@@ -23,9 +23,9 @@ univector<int> extract_epoch_indices(univector<f32> audio, double sample_frequen
     double mean_val;
 
     // Preprocess
-    x[0] = audio[0];
-    for (int i = 1; i < audio.size(); ++i) {
-        x[i] = audio[i] - audio[i-1];
+    x[0] = audio->at(0);
+    for (int i = 1; i < audio->size(); ++i) {
+        x[i] = audio->at(i) - audio->at(i-1);
     }
     x /= absmaxof(x);
 
@@ -78,12 +78,12 @@ univector<int> extract_epoch_indices(univector<f32> audio, double sample_frequen
         }
         last = act;
     }
-    epochs.push_back(audio.size() - 1);
+    epochs.push_back(audio->size() - 1);
 
     return epochs;
 }
 
-univector<f32> time_stretch(univector<f32> audio, univector<int> epoch_indices, float time_change_factor, int number_of_epochs_in_frame) {
+univector<f32> time_stretch(std::shared_ptr<univector<f32>> audio, univector<int> epoch_indices, float time_change_factor, int number_of_epochs_in_frame) {
 
     int target_length = 0;
     int last_epoch_index = epoch_indices[0];
@@ -97,7 +97,7 @@ univector<f32> time_stretch(univector<f32> audio, univector<int> epoch_indices, 
         while (target_length >= synthesized_wav.size()) {
             int frame_length = epoch_indices[i+number_of_epochs_in_frame] - epoch_indices[i] - 1;
             auto window = window_blackman<f32>(frame_length);
-            auto wav_frame_i = audio.slice(epoch_indices[i], frame_length) * window;
+            auto wav_frame_i = audio->slice(epoch_indices[i], frame_length) * window;
             buffer_increase = int(wav_frame_i.size() - synthesized_wav.size() + last_epoch_index);
             if (buffer_increase > 0) {
                 synthesized_wav.resize(synthesized_wav.size() + buffer_increase, 0);
@@ -115,7 +115,7 @@ univector<f32> time_stretch(univector<f32> audio, univector<int> epoch_indices, 
     return synthesized_wav;
 }
 
-univector<f32> esola(univector<f32> audio, float time_change_factor, int number_of_epochs_in_frame, double sample_frequency) {
+univector<f32> esola(std::shared_ptr<univector<f32>> audio, float time_change_factor, int number_of_epochs_in_frame, double sample_frequency) {
     auto epoch_indices = extract_epoch_indices(audio, sample_frequency);
     auto stretched_wave = time_stretch(audio, epoch_indices, time_change_factor, number_of_epochs_in_frame);
     return stretched_wave;

@@ -1,5 +1,6 @@
 #include "src/esola.cpp"
 #include "src/argparse.h"
+//#include <chrono>
 
 using namespace std;
 using namespace kfr;
@@ -40,10 +41,11 @@ int main(int argc, const char* argv[]) {
 
     audio_reader_wav<float> reader(open_file_for_reading(input_filepath));
     univector2d<float> audio = reader.read_channels();
-    const std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-    auto input_audio = audio[0];
+    auto input_audio = std::make_shared<univector<float>>(audio[0]);
+//    const std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     auto output_audio = esola(input_audio, float(1.0/time_scaling_factor), 3, reader.format().samplerate);
-    const std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+//    const std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+//    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << std::endl;
 
     audio_writer_wav<f32> writer(open_file_for_writing(KFR_FILEPATH(output_filepath)),
                                    audio_format{ 1, audio_sample_type::i16, reader.format().samplerate, false });
