@@ -1,6 +1,5 @@
 #include "src/esola.cpp"
 #include "src/argparse.h"
-#include <chrono>
 
 using namespace std;
 using namespace kfr;
@@ -50,8 +49,7 @@ int main(int argc, const char* argv[]) {
                                    audio_format{ 1, audio_sample_type::i16, reader.format().samplerate, false });
     writer.write(output_audio.data(), output_audio.size());
 
-    spdlog::info("Final Length = {}, ratio = {}", output_audio.size(),  float(reader.format().length) / float(output_audio.size()));
-    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << std::endl;
+    std::cout << "File with " << time_scaling_factor << "x time-stretch created at " << output_filepath << std::endl;
 
     return 0;
 }

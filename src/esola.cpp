@@ -7,7 +7,6 @@
 #include <kfr/io.hpp>
 #include <kfr/dsp.hpp>
 #include <kfr/math.hpp>
-#include "spdlog/spdlog.h"
 
 using namespace kfr;
 

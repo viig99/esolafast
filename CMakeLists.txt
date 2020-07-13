@@ -9,8 +9,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Include KFR subdirectory
 add_subdirectory(kfr)
-add_subdirectory(spdlog)
 add_executable(esolafast main.cpp)
 
 target_sources(esolafast INTERFACE src/*.cpp)
-target_link_libraries(esolafast kfr_io spdlog)
+target_link_libraries(esolafast kfr_io)
