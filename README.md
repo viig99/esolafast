@@ -11,6 +11,7 @@ Mostly an C++ re-write of https://github.com/BaronVladziu/ESOLA-Implementation t
     git submodule update --init --recursive
     mkdir build && cd build
     cmake ..
+    make -j`nproc`
 ```
 
 ## Run
