@@ -2,14 +2,11 @@
 // Created by Arjun Variar on 13/07/20.
 //
 
-#include <iostream>
 #include <kfr/io/audiofile.hpp>
 #include <kfr/io.hpp>
 #include <kfr/dsp.hpp>
-#include <kfr/math.hpp>
 
 using namespace kfr;
-
 
 univector<int> extract_epoch_indices(std::shared_ptr<univector<f32>> audio, double sample_frequency) {
     const int window_length = int(0.005 * sample_frequency);
