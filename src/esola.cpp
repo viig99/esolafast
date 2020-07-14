@@ -83,27 +83,26 @@ univector<int> extract_epoch_indices(std::shared_ptr<univector<f32>> audio, doub
     return epochs;
 }
 
-univector<f32> time_stretch(std::shared_ptr<univector<f32>> audio, univector<int> epoch_indices, float time_change_factor, int number_of_epochs_in_frame) {
+void time_stretch(std::shared_ptr<univector<f32>> audio, std::shared_ptr<univector<f32>> synthesized_wav, univector<int> epoch_indices, float time_change_factor, int number_of_epochs_in_frame) {
 
     int target_length = 0;
     int last_epoch_index = epoch_indices[0];
     int hop = 0;
     int buffer_increase = 0;
-    univector<f32> synthesized_wav;
     univector<f32> window_wav;
 
     for (int i = 0; i < epoch_indices.size() - number_of_epochs_in_frame; ++i) {
         hop = epoch_indices[i+1] - epoch_indices[i];
-        while (target_length >= synthesized_wav.size()) {
+        while (target_length >= synthesized_wav->size()) {
             int frame_length = epoch_indices[i+number_of_epochs_in_frame] - epoch_indices[i] - 1;
             auto window = window_blackman<f32>(frame_length);
             auto wav_frame_i = audio->slice(epoch_indices[i], frame_length) * window;
-            buffer_increase = int(wav_frame_i.size() - synthesized_wav.size() + last_epoch_index);
+            buffer_increase = int(wav_frame_i.size() - synthesized_wav->size() + last_epoch_index);
             if (buffer_increase > 0) {
-                synthesized_wav.resize(synthesized_wav.size() + buffer_increase, 0);
+                synthesized_wav->resize(synthesized_wav->size() + buffer_increase, 0);
                 window_wav.resize(window_wav.size() + buffer_increase, 0);
             }
-            synthesized_wav.slice(last_epoch_index, frame_length) += wav_frame_i;
+            synthesized_wav->slice(last_epoch_index, frame_length) += wav_frame_i;
             window_wav.slice(last_epoch_index, frame_length) += window;
 
             last_epoch_index += hop;
@@ -111,13 +110,11 @@ univector<f32> time_stretch(std::shared_ptr<univector<f32>> audio, univector<int
         target_length += int(hop * time_change_factor);
     }
 
-    synthesized_wav /= max(window_wav, univector<float>(window_wav.size(), 1e-4));
-    return synthesized_wav;
+    *synthesized_wav /= max(window_wav, univector<float>(window_wav.size(), 1e-4));
 }
 
-univector<f32> esola(std::shared_ptr<univector<f32>> audio, float time_change_factor, int number_of_epochs_in_frame, double sample_frequency) {
-    auto epoch_indices = extract_epoch_indices(audio, sample_frequency);
-    auto stretched_wave = time_stretch(audio, epoch_indices, time_change_factor, number_of_epochs_in_frame);
-    return stretched_wave;
+void esola(std::shared_ptr<univector<f32>> input_audio, std::shared_ptr<univector<f32>> output_audio, float time_change_factor, int number_of_epochs_in_frame, double sample_frequency) {
+    auto epoch_indices = extract_epoch_indices(input_audio, sample_frequency);
+    time_stretch(input_audio, output_audio, epoch_indices, time_change_factor, number_of_epochs_in_frame);
 }
 

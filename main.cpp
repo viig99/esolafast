@@ -42,14 +42,15 @@ int main(int argc, const char* argv[]) {
     audio_reader_wav<float> reader(open_file_for_reading(input_filepath));
     univector2d<float> audio = reader.read_channels();
     auto input_audio = std::make_shared<univector<float>>(audio[0]);
+    auto output_audio = std::make_shared<univector<f32>>();
 //    const std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-    auto output_audio = esola(input_audio, float(1.0/time_scaling_factor), 3, reader.format().samplerate);
+    esola(input_audio, output_audio, float(1.0/time_scaling_factor), 3, reader.format().samplerate);
 //    const std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-//    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]" << std::endl;
+//    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() << "[ms]\n";
 
     audio_writer_wav<f32> writer(open_file_for_writing(KFR_FILEPATH(output_filepath)),
                                    audio_format{ 1, audio_sample_type::i16, reader.format().samplerate, false });
-    writer.write(output_audio.data(), output_audio.size());
+    writer.write(output_audio->data(), output_audio->size());
 
     std::cout << "File with " << time_scaling_factor << "x time-stretch created at " << output_filepath << std::endl;
 
