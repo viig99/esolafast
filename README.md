@@ -21,7 +21,7 @@ Mostly an C++ re-write of https://github.com/BaronVladziu/ESOLA-Implementation t
 ```
 
 ## Performance
-Right now faster than sox & sound-stretch
+Right now faster than sox & sound-stretch, CPU usage is much higher.
 ```$xslt
 $ time sox sample_file.wav sox_1_5.wav tempo 1.5
 sox sox_1_5.wav tempo 2.0  0.01s user 0.01s system 17% cpu 0.022 total
@@ -30,7 +30,7 @@ $ time soundstretch sample_file.wav st_1_5.wav -tempo=1.5
 soundstretch st_1_5.wav -tempo=1.5  0.01s user 0.00s system 44% cpu 0.022 total
 
 $ time esolafast -i sample_file.wav -o es_1_5.wav -t 1.5
-esolafast -i  -o  -t 1.5  0.01s user 0.00s system 92% cpu 0.014 total
+esolafast -i  -o  -t 1.5  0.01s user 0.00s system 92% cpu 0.017 total
 ```
 
 ## Reference
