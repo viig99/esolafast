@@ -8,11 +8,23 @@ set(CMAKE_CXX_EXTENSIONS ON)
 set(CMAKE_CXX_VISIBILITY_PRESET "hidden")
 set(CMAKE_BUILD_TYPE "Release")
 
-# Include KFR subdirectory
-add_subdirectory(kfr)
-add_executable(esolafast main.cpp)
+option(BUILD_FOR_PYTHON "Build for Python" OFF)
 
-target_sources(esolafast INTERFACE src/*.cpp)
-target_link_libraries(esolafast kfr_io)
-target_compile_options(esolafast PRIVATE
-        $<$<CONFIG:Release>:-O3 -ffast-math>)
+if(BUILD_FOR_PYTHON)
+    add_subdirectory(pybind11)
+    add_subdirectory(kfr)
+    add_library(esolafast MODULE esolafast.cpp)
+    target_sources(esolafast INTERFACE src/*.cpp)
+    target_link_libraries(esolafast PRIVATE pybind11::module kfr_io)
+    set_target_properties(esolafast PROPERTIES PREFIX "${PYTHON_MODULE_PREFIX}"
+            SUFFIX "${PYTHON_MODULE_EXTENSION}")
+    target_compile_options(esolafast PRIVATE
+            $<$<CONFIG:Release>:-O3 -ffast-math -flto>)
+else()
+    add_subdirectory(kfr)
+    add_executable(esolafast main.cpp)
+    target_sources(esolafast INTERFACE src/*.cpp)
+    target_link_libraries(esolafast PRIVATE kfr_io)
+    target_compile_options(esolafast PRIVATE
+            $<$<CONFIG:Release>:-O3 -ffast-math>)
+endif()

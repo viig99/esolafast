@@ -36,6 +36,14 @@ $ time rubberband -q -T 1.5 sample_file.wav rb_1_5.wav
 rubberband -q -T 1.5  rb_1_5.wav  0.01s user 0.00s system 89% cpu 0.022 total
 ```
 
+## Python Bindings
+Generate the python bindings, using pybind11
+```asm
+ $ python setup.py build
+```
+
+For example using the python binding check `examples/test.py`
+
 ## Reference
 [Epoch-Synchronous Overlap-Add (ESOLA) for Time- and Pitch-Scale Modification of Speech Signals
 ](https://arxiv.org/abs/1801.06492)
