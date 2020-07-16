@@ -20,6 +20,7 @@ if(BUILD_FOR_PYTHON)
             SUFFIX "${PYTHON_MODULE_EXTENSION}")
     target_compile_options(esolafast PRIVATE
             $<$<CONFIG:Release>:-O3 -ffast-math -flto>)
+    message(STATUS "Build for Python = " ${BUILD_FOR_PYTHON})
 else()
     add_subdirectory(kfr)
     add_executable(esolafast main.cpp)

@@ -44,6 +44,7 @@ Generate the python bindings, using pybind11
 
 For example using the python binding check `examples/test.py`
 
-## Reference
-[Epoch-Synchronous Overlap-Add (ESOLA) for Time- and Pitch-Scale Modification of Speech Signals
+## References
+* [Epoch-Synchronous Overlap-Add (ESOLA) for Time- and Pitch-Scale Modification of Speech Signals
 ](https://arxiv.org/abs/1801.06492)
+* [Epoch Extraction From Speech Signals](https://citeseerx.ist.psu.edu/viewdoc/download;jsessionid=6D94C490DA889017DE4362D322E1A23C?doi=10.1.1.586.7214&rep=rep1&type=pdf)
