@@ -10,7 +10,6 @@ using namespace kfr;
 
 univector<int> extract_epoch_indices(std::shared_ptr<univector<f32>> audio, double sample_frequency) {
     const int window_length = int(0.005 * sample_frequency);
-
     const int audio_size = audio->size();
 
     univector<double> x(audio_size, 0);
@@ -20,53 +19,64 @@ univector<int> extract_epoch_indices(std::shared_ptr<univector<f32>> audio, doub
     univector<double> y(audio_size, 0);
     univector<int> epochs;
     double mean_val;
+    double running_sum;
 
     // Preprocess
     x[0] = audio->at(0);
     for (int i = 1; i < audio_size; ++i) {
-        x[i] = audio->at(i) - audio->at(i-1);
+        x[i] = audio->at(i) - audio->at(i - 1);
     }
     x /= absmaxof(x);
 
     // First stage
     y1[0] = x[0];
-    y1[1] = x[1] + (2.0*y1[0]);
+    y1[1] = x[1] + (2.0 * y1[0]);
     for (int i = 2; i < audio_size; ++i) {
-        y1[i] = x[i] + (2.0*y1[i-1]) - y1[i-2];
+        y1[i] = x[i] + (2.0 * y1[i - 1]) - y1[i - 2];
     }
     y1 /= absmaxof(y1);
 
     // Second Stage
     y2[0] = y1[0];
-    y2[1] = y1[1] + (2.0*y2[0]);
+    y2[1] = y1[1] + (2.0 * y2[0]);
     for (int i = 2; i < audio_size; ++i) {
-        y2[i] = y1[i] + (2.0*y2[i-1]) - y2[i-2];
+        y2[i] = y1[i] + (2.0 * y2[i - 1]) - y2[i - 2];
     }
     y2 /= absmaxof(y2);
 
     // Third stage
+    running_sum = sum(y2.slice(0, 2 * window_length + 1));
     mean_val = 0;
     for (int i = 0; i < audio_size; ++i) {
-        if ((i-window_length < 0) || (i+window_length >= y2.size())) {
+        if ((i - window_length < 0) || (i + window_length >= audio_size)) {
             mean_val = y2[i];
+        } else if (i - window_length == 0) {
+            mean_val = running_sum / (2 * window_length + 1);
         } else {
-            mean_val = mean(y2.slice(i - window_length, 2 * window_length + 1));
+            running_sum -= y2[i - window_length - 1] - y2[i + window_length];
+            mean_val = running_sum / (2 * window_length + 1);
         }
         y3[i] = y2[i] - mean_val;
     }
     y3 /= absmaxof(y3);
 
+    // Fourth Stage
+    running_sum = sum(y3.slice(0, 2 * window_length + 1));
     mean_val = 0;
     for (int i = 0; i < audio_size; ++i) {
-        if ((i-window_length < 0) || (i+window_length >= y3.size())) {
+        if ((i - window_length < 0) || (i + window_length >= audio_size)) {
             mean_val = y3[i];
+        } else if (i - window_length == 0) {
+            mean_val = running_sum / (2 * window_length + 1);
         } else {
-            mean_val = mean(y3.slice(i - window_length, 2 * window_length + 1));
+            running_sum -= y3[i - window_length - 1] - y3[i + window_length];
+            mean_val = running_sum / (2 * window_length + 1);
         }
         y[i] = y3[i] - mean_val;
     }
     y /= absmaxof(y);
 
+    // Last stage
     double last = y[0];
     double act;
     epochs.push_back(0);
@@ -83,7 +93,6 @@ univector<int> extract_epoch_indices(std::shared_ptr<univector<f32>> audio, doub
 }
 
 void time_stretch(std::shared_ptr<univector<f32>> audio, std::shared_ptr<univector<f32>> synthesized_wav, univector<int> epoch_indices, float time_change_factor, int number_of_epochs_in_frame) {
-
     int target_length = 0;
     int last_epoch_index = epoch_indices[0];
     int hop = 0;
