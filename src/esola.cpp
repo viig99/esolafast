@@ -97,11 +97,12 @@ void time_stretch(std::shared_ptr<univector<f32>> audio, std::shared_ptr<univect
     int last_epoch_index = epoch_indices[0];
     int hop = 0;
     int buffer_increase = 0;
+    const int epoch_size = epoch_indices.size();
     univector<f32> window_wav;
 
-    for (int i = 0; i < epoch_indices.size() - number_of_epochs_in_frame; ++i) {
+    for (int i = 0; i < epoch_size - number_of_epochs_in_frame; ++i) {
         hop = epoch_indices[i+1] - epoch_indices[i];
-        while (target_length >= synthesized_wav->size()) {
+        if (target_length >= synthesized_wav->size()) {
             int frame_length = epoch_indices[i+number_of_epochs_in_frame] - epoch_indices[i] - 1;
             auto window = window_blackman<f32>(frame_length);
             auto wav_frame_i = audio->slice(epoch_indices[i], frame_length) * window;

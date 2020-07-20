@@ -14,7 +14,7 @@ py::array_t<float> esola_main(py::array_t<float, py::array::c_style | py::array:
     auto result        = py::array_t<float>(output_audio->size());
     auto result_buffer = result.request();
     int *result_ptr    = (int *) result_buffer.ptr;
-    std::memcpy(result_ptr,output_audio->data(),output_audio->size()*sizeof(float));
+    std::memcpy(result_ptr, output_audio->data(), output_audio->size()*sizeof(float));
     return result;
 }
 
