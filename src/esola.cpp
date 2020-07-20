@@ -12,8 +12,6 @@ univector<int> extract_epoch_indices(std::shared_ptr<univector<f32>> audio, doub
     const int window_length = int(0.015 * sample_frequency);
     const int audio_size = audio->size();
 
-    univector<double> x(audio_size, 0);
-    univector<double> y1(audio_size, 0);
     univector<double> y2(audio_size, 0);
     univector<double> y3(audio_size, 0);
     univector<double> y(audio_size, 0);
@@ -21,24 +19,20 @@ univector<int> extract_epoch_indices(std::shared_ptr<univector<f32>> audio, doub
     double mean_val;
     double running_sum;
 
-    // Preprocess
-    x[0] = audio->at(0);
-    for (int i = 1; i < audio_size; ++i) {
-        x[i] = audio->at(i) - audio->at(i - 1);
-    }
-
-    // First stage
-    y1[0] = x[0];
-    y1[1] = x[1] + (2.0 * y1[0]);
-    for (int i = 2; i < audio_size; ++i) {
-        y1[i] = x[i] + (2.0 * y1[i - 1]) - y1[i - 2];
-    }
-
-    // Second Stage
-    y2[0] = y1[0];
-    y2[1] = y1[1] + (2.0 * y2[0]);
-    for (int i = 2; i < audio_size; ++i) {
-        y2[i] = y1[i] + (2.0 * y2[i - 1]) - y2[i - 2];
+    double _x_0 = audio->at(0);
+    double _x_1 = audio->at(1) - _x_0;
+    double _y1_0 = _x_0;
+    double _y1_1 = _x_1 + (2.0 * _y1_0);
+    double x_i = 0;
+    double y1_i = 0;
+    y2[0] = _y1_0;
+    y2[1] = _y1_1 + (2.0 * y2[0]);
+    for (int i = 2; i < audio_size; i++) {
+        x_i = audio->at(i) - audio->at(i-1);
+        y1_i = x_i + (2.0 * _y1_1) - _y1_0;
+        y2[i] = y1_i + (2.0 * y2[i - 1]) - y2[i - 2];
+        _y1_0 = _y1_1;
+        _y1_1 = y1_i;
     }
 
     // Third stage
