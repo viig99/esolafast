@@ -34,13 +34,13 @@ int main(int argc, const char* argv[]) {
     if (code != 1) {
         return code;
     }
-    auto input_filepath = parser.get<std::string>("input_file");
-    auto output_filepath = parser.get<std::string>("output_file");
-    auto time_scaling_factor = parser.get<float>("time_scale");
+    const auto input_filepath = parser.get<std::string>("input_file");
+    const auto output_filepath = parser.get<std::string>("output_file");
+    const auto time_scaling_factor = parser.get<float>("time_scale");
 
     audio_reader_wav<float> reader(open_file_for_reading(input_filepath));
     univector2d<float> audio = reader.read_channels();
-    auto input_audio = std::make_shared<univector<float>>(audio[0]);
+    const auto input_audio = std::make_shared<univector<float>>(audio[0]);
     auto output_audio = std::make_shared<univector<f32>>();
     esola(input_audio, output_audio, float(1.0/time_scaling_factor), 3, reader.format().samplerate);
 
